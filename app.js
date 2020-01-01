@@ -16,6 +16,7 @@ class App {
         this.$modalTitle = document.querySelector(".modal-title");
         this.$modalText = document.querySelector(".modal-text");
         this.$modalCloseButton = document.querySelector('.modal-close-button');
+        this.$colorTooltip = document.querySelector('#color-tooltip');
 
         this.addEventListners();
     }
@@ -25,6 +26,14 @@ class App {
             this.handleFormClick(event);
             this.selectNote(event);
             this.openModal(event);
+        });
+
+        document.body.addEventListener('mouseover', event => {
+            this.openTooltip(event);
+        });
+
+        document.body.addEventListener('mouseout', event => {
+            this.closeTooltip(event);
         });
 
         this.$form.addEventListener('submit', event => {
@@ -87,10 +96,25 @@ class App {
         }
      }
 
-     closeModal() {
+    closeModal() {
          this.editNote();
          this.$modal.classList.toggle('open-modal');  
      }
+
+     openTooltip(event) {
+        if (!event.target.matches('.toolbar-color')) return;
+        this.id = event.target.nextElementSibling.dataset.id; 
+        const noteCoords = event.target.getBoundingClientRect();
+        const horizontal = noteCoords.left + window.scrollX;
+        const vertical = noteCoords.top + window.scrollY;
+        this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
+        this.$colorTooltip.style.display = 'flex'
+      }
+    
+    closeTooltip(event) {
+        if (!event.target.matches('.toolbar-color')) return;
+        this.$colorTooltip.style.display = 'none';
+    }
 
     addNote({ title, text }) {
         const newNote = {
@@ -132,9 +156,8 @@ class App {
         // }
         this.$notes.innerHTML = this.notes.map(note => `
             <div style="background: ${note.color}" class="note" data-id="${note.id}">
-                <div class="${note.title && 'note-title'}">${note.title}</div>
-                <div class="note-text">${note.text}</div>
-            </div>
+            <div class="${note.title && 'note-title'}">${note.title}</div>
+            <div class="note-text">${note.text}</div>
             <div class="toolbar-container">
                 <div class="toolbar">
                     <img class="toolbar-color" src="https://icon.now.sh/palette">
